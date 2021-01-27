@@ -35,5 +35,3 @@ ingredients = [
 ]
 
 ingredients.each {|ingredient| Ingredient.create(ingredient)}
-# users.each {|user| User.create(user)}
-# drinks.each {|drink| Drink.create(drink)}
