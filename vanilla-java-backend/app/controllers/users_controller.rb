@@ -5,7 +5,8 @@ class UsersController < ApplicationController
     end
     
     def create
-        user = User.create(name: params[:name])
-        render json: user
+        user = User.find_or_create_by(name: params[:name])
+        newDrink = Drink.create(name: "", user_id: user.id)
+        render json: [user, newDrink]
     end
 end
