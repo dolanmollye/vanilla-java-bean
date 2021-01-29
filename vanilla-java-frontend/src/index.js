@@ -101,8 +101,13 @@ function patchDrinkName(id, e){
     })
     .then(res => res.json())
     .then(() => {
-        document.querySelector('#drink-container').innerHTML = ""
+        let newName = document.createElement('h1')
+        newName.textContent = e.target.drink_name.value
+        document.querySelector('#postDrinkContainer').append(newName)
         createDrink()
+        document.querySelector('#drink-container').innerHTML = ""
+        
+       
     })
 }
 
@@ -235,6 +240,7 @@ function userInfo() {
 
 function drinkNameUpdate() {
     let drinkDiv = document.querySelector('#drink-container')
+    let name = document.createElement('h2')
     let formDiv = document.createElement('div')
     let nameForm = document.createElement('form')
     let nameInput = document.createElement('input')
@@ -367,6 +373,7 @@ function handleUserInfo() {
 
 function switchUser(){
     document.querySelector('#current-user').innerHTML = ""
+    document.querySelector('#postDrinkContainer').innerHTML = ''
     document.querySelector('#loginContainer').style.display = 'block'
 }
 
