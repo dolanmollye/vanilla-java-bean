@@ -31,6 +31,7 @@ function createUser(e) {
     })
 }
 
+
 function getAllIngredients(){
         fetch(INGREDIENTS_URL)
         .then(res => res.json())
@@ -45,6 +46,7 @@ function getAllIngredients(){
             }
         })
 }
+
 
 function createIngredient(ingredient) {
     fetch(INGREDIENTS_URL, {
@@ -64,6 +66,7 @@ function createIngredient(ingredient) {
         document.querySelector('#dropdown').append(newOption)
     })
 }
+
 
 function userPatch(id, e) {
     fetch(`${USER_URL}/${id}`, {
@@ -85,6 +88,7 @@ function userPatch(id, e) {
     })
 }
 
+
 function patchDrinkName(id, e){
     fetch(`${DRINK_URL}/${id}`, {
         method: 'PATCH',
@@ -99,13 +103,12 @@ function patchDrinkName(id, e){
     .then(() => {
         document.querySelector('#drink-container').innerHTML = ""
         createDrink()
-
-        // document.querySelector('#postDrinkContainer')
     })
 }
 
+
 function createDrink(){
-    console.log(document.querySelector('.found-user').id)
+    (document.querySelector('.found-user').id)
     fetch (DRINK_URL, {
         method: 'POST',
         headers: {
@@ -120,14 +123,14 @@ function createDrink(){
     .then((drink) => {
         let idDiv = document.createElement('div')
         idDiv.id = drink.id
-        console.log(drink)
         idDiv.className = 'drink-id-div'
         document.querySelector('#drink-container').append(idDiv)
         drinkNameUpdate()
     })
 }
 
-// DOM
+
+////////////////////////////// DOM
 function renderLoginPage() {
     //create divcontainer, header, form
     let loginDiv = document.getElementById('loginContainer')
@@ -151,6 +154,7 @@ function renderLoginPage() {
     
     form.addEventListener('submit', (e) => handleSubmit(e))
 }
+
 
 function renderIngredientsForm(drinkIngredient) {
     let ingredientDiv = document.getElementById('ingredient-container')
@@ -186,6 +190,7 @@ function renderIngredientsForm(drinkIngredient) {
     form.addEventListener('submit', (e) => submitIngredient(e))
 }
 
+
 function newIngredient() {
     let ingredientDiv = document.getElementById('ingredient-container')
 
@@ -193,7 +198,7 @@ function newIngredient() {
     formDiv.id = 'new-ing-div'
 
     let header = document.createElement('h2')
-    header.textContent = 'Add a new ingredient'
+    header.textContent = 'Create a new ingredient'
 
     let form = document.createElement('form')
     // form.setAttribute('method', 'post')
@@ -213,6 +218,7 @@ function newIngredient() {
     form.addEventListener('submit', (e) => addNewIngredient(e))
 }
 
+
 function userInfo() {
     let userDiv = document.getElementById('user-info')
     let userBtn = document.createElement('button')
@@ -225,6 +231,7 @@ function userInfo() {
     switchBtn.addEventListener('click', switchUser)
     userBtn.addEventListener('click', handleUserInfo)
 }
+
 
 function drinkNameUpdate() {
     let drinkDiv = document.querySelector('#drink-container')
@@ -246,8 +253,32 @@ function drinkNameUpdate() {
 
     nameForm.addEventListener('submit', (e) => updateDrinkHandler(e))
 }
+// function getDrinks() {
+//     fetch(DRINK_URL)
+//     .then(res => res.json())
+//     .then(drink => {
+//       let div;
+//       for (let i = 0; i < drink.length; i++) {
+//           div = document.createElement('div')
+//           div.textContent = drink[i].name
+//           div.value = drink[i].name
+//           div.id = drink[i].id
+//       }  
+//     }}
+// }
+// getDrinks()
+// function drinkCard(){
+//     let drinkContainer = document.querySelector('#postDrinkContainer')
+//     let drinkDiv = document.createElement('div')
+    
+//     // getdrinks()
 
-/////////////////////////////////////// HANDLERS
+//     drinkContainer.appendChild(drinkDiv)
+// }
+// drinkCard()
+
+
+///////////////////////////////// HANDLERS
 function handleSubmit(e) {
     e.preventDefault()
     createUser(e)
@@ -270,7 +301,6 @@ function submitIngredient(e) {
     })
     .then(res => res.json())
     .then((di) => {
-        // getDrinkIngredients(id)/////////////////////////////////////////////BOOKMARK
         let id = di.id
         let ul = document.createElement('ul')
         let ingredientLi = document.createElement('li')
@@ -287,6 +317,7 @@ function submitIngredient(e) {
     })
     
 }
+
 
 function addNewIngredient(e) {
     e.preventDefault()
@@ -312,11 +343,8 @@ function handleUserInfo() {
         let userDiv = document.createElement('div')
         userDiv.className = ('userDiv')
 
-        let greeting = document.createElement('h1')
-        greeting.textContent = `Hey ${user.name}. Update or Delete your account below`
-
-        let userName = document.createElement('h2')
-        userName.textContent = `${user.name}`
+        let greeting = document.createElement('h2')
+        greeting.textContent = `Hey ${user.name}! Update or delete your account below:`
         let form = document.createElement('form')
         form.setAttribute('method','patch')
         let input = document.createElement('input')
@@ -329,7 +357,7 @@ function handleUserInfo() {
         deleteBtn.textContent = "Delete User"
 
         form.append(input,editBtn)
-        userDiv.append(greeting,userName,form, deleteBtn)
+        userDiv.append(greeting,form, deleteBtn)
         userInfo.appendChild(userDiv)
 
         form.addEventListener('submit', (e) => editUserSubmit(e))
