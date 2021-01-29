@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderLoginPage()
     renderIngredientsForm()
     newIngredient()
-    // renderDrinkCard()
+    userInfo()
 })
 
 const BASE_URL = "http://localhost:3000"
@@ -24,13 +24,10 @@ function createUser(e) {
     })
     .then(res => res.json())
     .then(data => {
+        document.querySelector('.found-user').id = data[0]["id"]
         document.querySelector('#drink-container div').id = data[1]["id"]
-        document.getElementById('loginContainer').remove()
+        document.querySelector('#loginContainer').style.display = "none"
     })
-    // .then((foundUser) => {
-    //     document.querySelector('.found-user').id = foundUser.id
-    //     document.getElementById('loginContainer').remove()
-    // })
 }
 
 function getAllIngredients(){
@@ -48,21 +45,43 @@ function getAllIngredients(){
         })
 }
 
-// function createIngredient(ingredient) {
-//     fetch(`${INGREDIENTS_URL}/${id}`, {
-//         method: 'PATCH',
-//         headers: {
-//             'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify(ingredient)
-//     })
-//     .then(res => res.json())
-// }
-
-function getDrinkIngredients(id){
-    fetch(`${DRINK_INGREDIENT}/${id}`)
+function createIngredient(ingredient) {
+    fetch(INGREDIENTS_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(ingredient)
+    })
     .then(res => res.json())
-    .then(drinkIngredient => {renderDrinkCard(drinkIngredient)})
+    .then((ni) => {
+        let newOption = document.createElement('option')
+        newOption.id = ni.id
+        newOption.value = ni.name
+        newOption.innerText = ni.name
+
+        document.querySelector('#dropdown').append(newOption)
+    })
+}
+
+function userPatch(id, e) {
+    fetch(`${USER_URL}/${id}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            name: e.target.user_name.value
+        })
+    })
+    .then(res => res.json())
+    .then(user => {
+        let userInfo = document.querySelector('.userDiv')
+        newName = userInfo.querySelector('h2')
+        newHeader = userInfo.querySelector('h1')
+        newName.textContent = user.name
+        newHeader.textContent = `${user.name}, your name has been updated!`
+    })
 }
 
 // DOM
@@ -85,7 +104,7 @@ function renderLoginPage() {
 
     form.append(input,submitBtn)
     formDiv.appendChild(form)
-    loginDiv.append(title, formDiv)
+    loginDiv.append(title,formDiv)
     
     form.addEventListener('submit', (e) => handleSubmit(e))
 }
@@ -99,7 +118,7 @@ function renderIngredientsForm(drinkIngredient) {
     ingFormDiv.id = 'ingredient-div'
 
     let form = document.createElement('form')
-    form.setAttribute('method', 'post')
+    // form.setAttribute('method', 'post')
 
     let select = document.createElement('select')
     let defaultOption = document.createElement('option')
@@ -134,7 +153,7 @@ function newIngredient() {
     header.textContent = 'Add a new ingredient'
 
     let form = document.createElement('form')
-    form.setAttribute('method', 'post')
+    // form.setAttribute('method', 'post')
     let input = document.createElement('input')
     input.type = 'text'
     input.name = 'ingredient_name'
@@ -151,32 +170,24 @@ function newIngredient() {
     form.addEventListener('submit', (e) => addNewIngredient(e))
 }
 
+function userInfo() {
+    let userDiv = document.getElementById('user-info')
+    let header = document.createElement('h3')
+    header.className = 'h3'
+    header.textContent = 'Edit User'
+    //change to button
 
-function renderDrinkCard(drinkIngredient) {
-    let drinkDiv = document.querySelector('#drink-container div') 
-    let p = document.createElement('p')
-    let ul = document.createElement('ul')
+    userDiv.appendChild(header)
 
-    drinkIngredient.forEach(drinkIngredient => {
-        let li = document.createElement('li')
-        console.log(drinkIngredient)
-        li.textContent = drinkIngredient.ingredient.name
-        let deleteBtn = document.createElement('button')
-        deleteBtn.id = drinkIngredient.id
-        deleteBtn.textContent = 'x'
-        deleteBtn.addEventListener('click', (e) => deleteIngredient(drinkIngredient.id))
-
-        li.appendChild(deleteBtn)
-        ul.appendChild(li)
-    })
-    drinkDiv.append(p,ul)
+    header.addEventListener('click', handleUserInfo)
 }
 
+// function drinkFeed() {
+//     let allDrinks = document.querySelector('#postDrinkContainer')
+//     let drink = document.createElement('div')
+// }
 
-
-
-
-// HANDLERS
+/////////////////////////////////////// HANDLERS
 function handleSubmit(e) {
     e.preventDefault()
     createUser(e)
@@ -197,21 +208,89 @@ function submitIngredient(e) {
         })
     })
     .then(res => res.json())
-    .then(() => getDrinkIngredients(id))
+    .then((di) => {
+        // getDrinkIngredients(id)/////////////////////////////////////////////BOOKMARK
+        let id = di.id
+        let ul = document.createElement('ul')
+        let ingredientLi = document.createElement('li')
+        ingredientLi.textContent = di.ingredient.name
+        let deleteBtn = document.createElement('button')
+        deleteBtn.textContent = 'x'
+
+
+        ingredientLi.appendChild(deleteBtn)
+        ul.appendChild(ingredientLi)
+        document.querySelector('#drink-container').append(ul)
+
+        deleteBtn.addEventListener('click', () => deleteIngredient(id))
+    })
+    
 }
 
+//ingredient posts to DB but in order to add to drinkCard need to refresh and access user again
 function addNewIngredient(e) {
     e.preventDefault()
-    console.log(e)
     let ingredient = {
-        name: e.target.ingredient_name1.value
+        name: e.target.ingredient_name.value
     }
     createIngredient(ingredient)
+    e.target.reset()
 }
 
 function deleteIngredient(id) {
     fetch(`${DRINK_INGREDIENT}/${id}`, {
       method: 'DELETE'
     })
-    .then(() => {document.querySelector('#drink-container div ul li').remove()})
+    .then(() => {document.querySelector('#drink-container ul li').remove()})
+}
+
+function handleUserInfo() {
+    fetch(`${USER_URL}/${document.querySelector('.found-user').id}`)
+    .then(res => res.json())
+    .then(user => {
+        let userInfo = document.getElementById('current-user')
+        let userDiv = document.createElement('div')
+        userDiv.className = ('userDiv')
+
+        let greeting = document.createElement('h1')
+        greeting.textContent = `Hey ${user.name}. Update or Delete your account below`
+
+        let userName = document.createElement('h2')
+        userName.textContent = `${user.name}`
+        let form = document.createElement('form')
+        form.setAttribute('method','patch')
+        let input = document.createElement('input')
+        input.type = 'text'
+        input.name = 'user_name'
+        let editBtn = document.createElement('button')
+        editBtn.textContent = "Edit User"
+        editBtn.type = 'submit'
+        let deleteBtn = document.createElement('button')
+        deleteBtn.textContent = "Delete User"
+
+        form.append(input,editBtn)
+        userDiv.append(greeting,userName,form, deleteBtn)
+        userInfo.appendChild(userDiv)
+
+        form.addEventListener('submit', (e) => editUserSubmit(e))
+        deleteBtn.addEventListener('click',() => deleteUser(document.querySelector('.found-user').id))
+    })
+}
+
+function editUserSubmit(e) {
+    e.preventDefault()
+    const id = `${document.querySelector('.found-user').id}`
+    userPatch(id, e)
+    e.target.reset()
+}
+
+function deleteUser(id){
+    fetch(`${USER_URL}/${id}`,{
+        method: 'DELETE'
+    })
+    document.querySelector('#current-user').innerHTML = ""
+    document.querySelector('#loginContainer').style.display = 'block'
+    
+    // document.body.innerHTML = '<h1>GOODBYE</h1>'
+
 }

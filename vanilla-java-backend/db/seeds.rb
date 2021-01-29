@@ -11,6 +11,10 @@ Drink.destroy_all
 Ingredient.destroy_all
 
 ingredients = [
+    {name: '1 shot of espresso'},
+    {name: '2 shot of espresso'},
+    {name: '3 shot of espresso'},
+    {name: '4 shot of espresso'},
     {name: 'Whole Milk'},
     {name: '2% Milk'},
     {name: 'Nonfat Milk'},
