@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderIngredientsForm()
     newIngredient()
     userInfo()
+    drinkNameUpdate()
 })
 
 const BASE_URL = "http://localhost:3000"
@@ -81,6 +82,48 @@ function userPatch(id, e) {
         newHeader = userInfo.querySelector('h1')
         newName.textContent = user.name
         newHeader.textContent = `${user.name}, your name has been updated!`
+    })
+}
+
+function patchDrinkName(id, e){
+    fetch(`${DRINK_URL}/${id}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            name: e.target.drink_name.value
+        })
+    })
+    .then(res => res.json())
+    .then(() => {
+        document.querySelector('#drink-container').innerHTML = ""
+        createDrink()
+
+        // document.querySelector('#postDrinkContainer')
+    })
+}
+
+function createDrink(){
+    console.log(document.querySelector('.found-user').id)
+    fetch (DRINK_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            name: '',
+            id: document.querySelector('.found-user').id
+        })
+    })
+    .then(res => res.json())
+    .then((drink) => {
+        let idDiv = document.createElement('div')
+        idDiv.id = drink.id
+        console.log(drink)
+        idDiv.className = 'drink-id-div'
+        document.querySelector('#drink-container').append(idDiv)
+        drinkNameUpdate()
     })
 }
 
@@ -172,25 +215,43 @@ function newIngredient() {
 
 function userInfo() {
     let userDiv = document.getElementById('user-info')
-    let header = document.createElement('h3')
-    header.className = 'h3'
-    header.textContent = 'Edit User'
-    //change to button
+    let userBtn = document.createElement('button')
+    userBtn.textContent = 'Update Your Info'
+    let switchBtn = document.createElement('button')
+    switchBtn.textContent = ('Switch User')
 
-    userDiv.appendChild(header)
+    userDiv.append(userBtn,switchBtn)
 
-    header.addEventListener('click', handleUserInfo)
+    switchBtn.addEventListener('click', switchUser)
+    userBtn.addEventListener('click', handleUserInfo)
 }
 
-// function drinkFeed() {
-//     let allDrinks = document.querySelector('#postDrinkContainer')
-//     let drink = document.createElement('div')
-// }
+function drinkNameUpdate() {
+    let drinkDiv = document.querySelector('#drink-container')
+    let formDiv = document.createElement('div')
+    let nameForm = document.createElement('form')
+    let nameInput = document.createElement('input')
+    let label = document.createElement('label')
+    label.innerText = 'Done? Name your masterpiece:'
+    nameInput.type = 'text'
+    nameInput.name = 'drink_name'
+
+    let submitBtn = document.createElement('button')
+    submitBtn.textContent = 'Post'
+    submitBtn.type = 'submit'
+
+    nameForm.append(label,nameInput,submitBtn)
+    formDiv.appendChild(nameForm)
+    drinkDiv.appendChild(formDiv)
+
+    nameForm.addEventListener('submit', (e) => updateDrinkHandler(e))
+}
 
 /////////////////////////////////////// HANDLERS
 function handleSubmit(e) {
     e.preventDefault()
     createUser(e)
+    e.target.reset()
 }
 
 function submitIngredient(e) {
@@ -227,7 +288,6 @@ function submitIngredient(e) {
     
 }
 
-//ingredient posts to DB but in order to add to drinkCard need to refresh and access user again
 function addNewIngredient(e) {
     e.preventDefault()
     let ingredient = {
@@ -277,6 +337,11 @@ function handleUserInfo() {
     })
 }
 
+function switchUser(){
+    document.querySelector('#current-user').innerHTML = ""
+    document.querySelector('#loginContainer').style.display = 'block'
+}
+
 function editUserSubmit(e) {
     e.preventDefault()
     const id = `${document.querySelector('.found-user').id}`
@@ -290,7 +355,10 @@ function deleteUser(id){
     })
     document.querySelector('#current-user').innerHTML = ""
     document.querySelector('#loginContainer').style.display = 'block'
-    
-    // document.body.innerHTML = '<h1>GOODBYE</h1>'
+}
 
+function updateDrinkHandler(e) {
+    e.preventDefault()
+    const id = `${document.querySelector('.drink-id-div').id}`
+    patchDrinkName(id, e)
 }
